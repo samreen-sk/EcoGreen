@@ -1,9 +1,12 @@
 import { Card } from "./ui/card";
 import { Button } from "./ui/button";
 import { Calendar, Users, MapPin, Heart, Camera, Trophy } from "lucide-react";
-
+import { useState } from "react";
+import { useToast } from "@/hooks/use-toast"; 
 const Community = () => {
-  const events = [
+  const { toast } = useToast();
+
+  const [events, setEvents] = useState([
     {
       title: "Community Cleanup Day",
       date: "Sunday, 10 AM",
@@ -18,13 +21,59 @@ const Community = () => {
       participants: 30,
       icon: Calendar,
     },
-  ];
+  ]);
 
-  const topContributors = [
-    { name: "Rajesh Kumar", points: 2500, badge: "🏆" },
-    { name: "Priya Sharma", points: 2300, badge: "🥈" },
-    { name: "Amit Patel", points: 2100, badge: "🥉" },
-  ];
+  const handleJoin = (index: number) => {
+    const newEvents = [...events];
+    newEvents[index].participants += 1;
+    setEvents(newEvents);
+
+    const newContributors = [...topContributors];
+    newContributors[0].points += 50; // example: first contributor gets 50 points
+    setTopContributors(newContributors);
+
+
+    toast({
+      title: `Joined ${newEvents[index].title}!`,
+      description: "Thanks for joining this community event.",
+    });
+  };
+  const [galleryImages, setGalleryImages] = useState<string[]>([]);
+
+  const [topContributors, setTopContributors] = useState([
+  { name: "Rajesh Kumar", points: 2500, badge: "🏆" },
+  { name: "Priya Sharma", points: 2300, badge: "🥈" },
+  { name: "Amit Patel", points: 2100, badge: "🥉" },
+]);
+const handleUploadPhoto = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const files = event.target.files;
+  if (!files || files.length === 0) return;
+
+  const newImages: string[] = [];
+  Array.from(files).forEach(file => {
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      newImages.push(reader.result as string);
+
+      // After all files are read, update state
+      if (newImages.length === files.length) {
+        setGalleryImages(prev => [...prev, ...newImages]);
+
+        const newContributors = [...topContributors];
+        newContributors[0].points += 20 * files.length; // add points for each photo
+        setTopContributors(newContributors);
+
+        toast({
+          title: "Photo(s) uploaded!",
+          description: "Your photo(s) have been added to the community gallery.",
+        });
+      }
+    };
+    reader.readAsDataURL(file);
+  });
+};
+
+  
 
   return (
     <section id="community" className="py-20 bg-background">
@@ -79,9 +128,13 @@ const Community = () => {
                         <span className="text-sm text-muted-foreground">
                           {event.participants} participants
                         </span>
-                        <Button size="sm" variant="default">
-                          Join Now
-                        </Button>
+                        <Button
+  size="sm"
+  variant="default"
+  onClick={() => handleJoin(index)}
+>
+  Join Now
+</Button>
                       </div>
                     </div>
                   </div>
@@ -142,19 +195,39 @@ const Community = () => {
                     Share your cleanup photos and inspire others in the community!
                   </p>
                   <div className="grid grid-cols-3 gap-3">
-                    {[1, 2, 3].map((i) => (
-                      <div
-                        key={i}
-                        className="aspect-square bg-muted rounded-lg border-2 border-border hover:border-primary transition-colors duration-300 flex items-center justify-center group cursor-pointer"
-                      >
-                        <Camera className="w-8 h-8 text-muted-foreground group-hover:text-primary transition-colors duration-300" />
-                      </div>
-                    ))}
-                  </div>
-                  <Button variant="hero" className="w-full">
-                    <Camera className="mr-2" />
-                    Upload Photo
-                  </Button>
+  {galleryImages.length > 0
+    ? galleryImages.map((img, i) => (
+        <div
+          key={i}
+          className="aspect-square rounded-lg overflow-hidden border-2 border-border hover:border-primary transition-colors duration-300"
+        >
+          <img src={img} alt={`gallery-${i}`} className="w-full h-full object-cover" />
+        </div>
+      ))
+    : [1, 2, 3].map((i) => (
+        <div
+          key={i}
+          className="aspect-square bg-muted rounded-lg border-2 border-border hover:border-primary transition-colors duration-300 flex items-center justify-center group cursor-pointer"
+        >
+          <Camera className="w-8 h-8 text-muted-foreground group-hover:text-primary transition-colors duration-300" />
+        </div>
+      ))}
+</div>
+
+                  <label className="w-full">
+  <input
+    type="file"
+    accept="image/*"
+    multiple
+    onChange={handleUploadPhoto}
+    className="hidden"
+  />
+  <Button variant="hero" className="w-full cursor-pointer">
+    <Camera className="mr-2" />
+    Upload Photo
+  </Button>
+</label>
+
                 </div>
               </Card>
             </div>
