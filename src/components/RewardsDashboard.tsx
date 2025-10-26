@@ -52,7 +52,7 @@ const RewardsDashboard = () => {
           </Card>
 
           {/* Points Progress Card */}
-          <Card className="p-8 bg-gradient-to-br from-card to-accent/10 shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-glow)] transition-all duration-500 animate-in fade-in slide-in-from-bottom duration-700 delay-150">
+          <Card className="p-8 bg-gradient-to-br from-card to-accent/10 shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-glow)] transition-all duration-700 animate-in fade-in slide-in-from-bottom delay-150">
             <div className="space-y-6">
               <div className="flex items-center justify-between">
                 <h3 className="text-xl font-bold text-foreground">Eco Points</h3>
